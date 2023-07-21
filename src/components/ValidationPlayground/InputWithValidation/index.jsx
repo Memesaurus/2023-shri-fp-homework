@@ -51,6 +51,7 @@ const InputWithValidation = ({validateFn, label}) => {
             if (Object.values(colors).every(el => el === COLORS.WHITE)) {
                 setIsFieldValid(undefined);
             } else {
+                console.log(validateFn(colors));
                 if (validateFn(colors)) {
                     if (!isFieldValid) {
                         setIsFieldValid(true)
