@@ -91,7 +91,6 @@ const isThresholdPassed = (arr) => {
 export const validateFieldN5 = pipe(values, grpByColor, isThresholdPassed);
 
 const SAME_GREEN_VALUE = 2;
-
 const isGreenExact = pipe(countGreen, equals(SAME_GREEN_VALUE));
 
 const isRedNotZero = (n) => n > 0;
