@@ -18,10 +18,12 @@ import {
   __,
   allPass,
   andThen,
-  curry, length,
+  curry,
+  length,
   lensProp,
   modulo,
   not,
+  otherwise,
   over,
   pipe,
   prop,
@@ -30,7 +32,7 @@ import {
   test,
   tryCatch,
   unless,
-  view
+  view,
 } from "ramda";
 import Api from "../tools/api";
 import { flip, round, toNumber } from "lodash";
@@ -58,17 +60,16 @@ const isPositive = pipe(getValue, startsWith("-"), not);
 
 const isNumber = pipe(getValue, test(/^\d+(\.\d+)?$/));
 
-const ERR_VALIDATION = "ValidationError";
-const handleError = pipe(
-  tap(({ handleError }) => handleError(ERR_VALIDATION)),
-  () => {
-    throw new Error("ValidationError");
-  }
+const VALIDATION_ERROR = "ValidationError";
+const handleError = tap((error) =>
+  context.handleError(typeof error === "string" ? error : VALIDATION_ERROR)
 );
 
 const validateValue = unless(
   allPass([isLenNotOverMax, isLenNotBelowMin, isPositive, isNumber]),
-  handleError
+  pipe(handleError, () => {
+    throw new Error(VALIDATION_ERROR);
+  })
 );
 
 let setValue = over(valueLens);
@@ -130,7 +131,8 @@ const processSequence = tryCatch(
         convertToAnimal,
         andThen(pipe(writeFile, handleSuccess))
       )
-    )
+    ),
+    otherwise(handleError)
   ),
   console.log
 );
