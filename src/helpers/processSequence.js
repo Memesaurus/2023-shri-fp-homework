@@ -40,10 +40,9 @@ import { flip, round, toNumber } from "lodash";
 
 const api = new Api();
 
-const log = (a) => {
-  console.log(a);
-  return a;
-};
+let context;
+
+const bindContext = (obj) => (context = obj);
 
 const VALUE_PROP = "value";
 const valueLens = lensProp(VALUE_PROP);
@@ -92,14 +91,15 @@ const binaryParams = {
 };
 const setBinaryParams = (number) => ({ ...binaryParams, number });
 
-//Поменяю на ФП если успею, не понял как это сделать адекватно
-const toBinary = async (obj) => {
-  const params = pipe(getValue, setBinaryParams)(obj);
 
-  const response = await converter(params);
-
-  return { ...obj, value: response[RESPONSE_DATA_PROP] };
+//супер костыль
+const asyncSetValue = (val) => {
+  context.value = val;
+  return context;
 };
+
+const setData = pipe(prop(RESPONSE_DATA_PROP), asyncSetValue);
+const toBinary = pipe(getValue, setBinaryParams, converter, andThen(setData))
 
 const toLen = setValue(length);
 
@@ -109,17 +109,14 @@ const toPow = setValue(powOf2);
 const divBy3 = setValue(modulo(__, 3));
 
 const ANIMAL_URL = "https://animals.tech/";
-
-const convertToAnimal = async (obj) => {
-  const response = await get(ANIMAL_URL + getValue(obj), null);
-  console.log(response);
-  return { ...obj, value: response[RESPONSE_DATA_PROP] };
-};
+const requestAnimal = (param) => get(ANIMAL_URL + param, null);
+const convertToAnimal = pipe(getValue, requestAnimal, andThen(setData));
 
 const handleSuccess = tap(({ value, handleSuccess }) => handleSuccess(value));
 
 const processSequence = tryCatch(
   pipe(
+    bindContext,
     writeFile,
     validateValue,
     convertToInt,
