@@ -18,10 +18,7 @@ import {
   __,
   allPass,
   andThen,
-  curry,
-  divide,
-  identity,
-  length,
+  curry, length,
   lensProp,
   modulo,
   not,
@@ -33,7 +30,7 @@ import {
   test,
   tryCatch,
   unless,
-  view,
+  view
 } from "ramda";
 import Api from "../tools/api";
 import { flip, round, toNumber } from "lodash";
@@ -91,7 +88,6 @@ const binaryParams = {
 };
 const setBinaryParams = (number) => ({ ...binaryParams, number });
 
-
 //супер костыль
 const asyncSetValue = (val) => {
   context.value = val;
@@ -99,7 +95,7 @@ const asyncSetValue = (val) => {
 };
 
 const setData = pipe(prop(RESPONSE_DATA_PROP), asyncSetValue);
-const toBinary = pipe(getValue, setBinaryParams, converter, andThen(setData))
+const toBinary = pipe(getValue, setBinaryParams, converter, andThen(setData));
 
 const toLen = setValue(length);
 
